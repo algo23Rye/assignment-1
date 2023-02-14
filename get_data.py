@@ -1,0 +1,46 @@
+import efinance as ef
+import re
+import numpy as np
+import pandas as pd
+
+# use efinance to get data
+
+info = ef.futures.get_futures_base_info()
+
+
+# get main contract name and code
+
+class Get_data:
+    def __init__(self, code_list):
+        self.code_list = code_list
+
+    def get_select_main_data(self):
+        pattern1 = re.compile(r'.*主力')
+        pattern2 = re.compile(r'.*次主力')
+        main_contract = info['期货名称'].apply(
+            lambda x: re.findall(pattern1, x)[0] if re.findall(pattern1, x) and not re.findall(pattern2,
+                                                                                               x) else np.nan).dropna()
+        main_contract_info = info[info['期货名称'].isin(main_contract.values)]
+        main_contract_info.to_csv("./main_contract_info.csv", encoding = 'gbk')
+
+        # get all the data of the main contracts
+        quote_ids = main_contract_info["行情ID"].to_list()
+        futures_dict = ef.futures.get_quote_history(quote_ids)
+        df = futures_dict[quote_ids[0]]
+        for i in range(1, len(quote_ids)):
+            df1 = futures_dict[quote_ids[i]]
+            df = pd.concat([df, df1])
+        df.drop(labels = ['换手率', '涨跌额'], inplace = True, axis = 1)
+        df.columns = ["chi_name", 'code', 'date', 'open', 'close', 'high', 'low', 'volume', 'amount', 'amplitude',
+                      'change_percentage']
+        df.reset_index(drop = True).to_csv("./main_contract.csv", encoding = 'gbk')
+
+        select_df = df[df['code'].isin(self.code_list)].reset_index(drop = True)
+        return select_df
+
+
+# select sugar cotton corn soybeans wheat
+code_list = ['SRM', 'am', 'CFM', 'PMM', 'cm']
+get_data=Get_data(code_list)
+get_data.get_select_main_data().to_csv("./select_contract.csv", encoding = 'gbk')
+
