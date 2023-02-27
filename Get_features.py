@@ -12,12 +12,14 @@ class Feature_calculation:
         '''
         :param data: a dataframe contain close price
         '''
+        
         self.data = data
 
     def return_calculation(self):
         '''
         :return: a dataframe with return columns
         '''
+
         self.data['return'] = (self.data['close'] - self.data['close'].shift(1)) / self.data['close'].shift(1)
         self.data.dropna(inplace = True)
         return self.data
@@ -28,6 +30,7 @@ class Feature_calculation:
         :param n: the length of the holding period, in the paper is 10 days
         :return: the feature :a dataframe
         '''
+
         holding_return = (self.data['close'].rolling(n).apply(lambda x: (x[-1] - x[0]) / x[0])).to_frame()
         holding_return.columns = ['holding_return_' + str(n) + "_days"]
         holding_return.dropna(inplace = True)
@@ -50,6 +53,7 @@ class Feature_calculation:
         :param risk_free_rate: the annulized risk_free rate
         :param n: the holding period (days)
         '''
+
         r_10 = risk_free_rate / 365 * n
         holding_return = self.data['close'].rolling(n).apply(lambda x: (x[-1] - x[0]) / x[0])
         holding_std = self.data['return'].rolling(n).std() * np.sqrt(n)
@@ -64,6 +68,7 @@ class Feature_calculation:
         :param n1: numerator:n1 days mean volume
         :param n2: denominator: n2 days mean volume
         '''
+
         n1_sum_v = self.data['volume'].rolling(n2).mean()
         n2_sum_v = self.data['volume'].rolling(n1).mean()
         ratio = (n1_sum_v / n2_sum_v).to_frame()
@@ -72,6 +77,11 @@ class Feature_calculation:
         return ratio
 
     def get_all_features(self):
+        '''
+
+        merge all the features.
+        '''
+
         self.return_calculation()
         holding_return = self.get_holding_return()
         mean_return = self.get_mean_return()
@@ -82,6 +92,13 @@ class Feature_calculation:
         return all_features
 
     def features_plot(self, all_features, pic_name):
+        '''
+        draw histograms  of the features
+
+        :param all_features: a dataframe of features without being standardized
+        :param pic_name: the title of the picture
+        '''
+
         plt.figure(figsize = (16, 8))
         for i in range(len(all_features.columns)):
             name = all_features.columns[i]
@@ -93,6 +110,12 @@ class Feature_calculation:
         plt.show()
 
     def features_z_score_standardize(self, all_features):
+        '''
+
+        :param all_features: a dataframe of features without being standardized
+        :return: standardized features using rolling and z_score method
+        '''
+
         s_features = all_features.apply(lambda x: (x - x.expanding().mean()) / x.expanding().std())
         s_features.dropna(inplace = True)
         # drop the first 100, because this is a rolling standardization
@@ -101,10 +124,10 @@ class Feature_calculation:
 
     def get_obj(self, n = 10):
         '''
-        in the paper the objective is the sign of return of the holding period (future n days
+        in the paper the objective is the sign of return of the holding period (future n days)
 
         :param n: the holding period (n days) of return
-        :return:
+        :return: the objective to be predicted
         '''
 
         future_return = (self.data['close'].shift(-n + 1).rolling(n).apply(lambda x: (x[-1] - x[0]) / x[0])).to_frame()
