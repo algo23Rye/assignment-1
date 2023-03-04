@@ -134,10 +134,11 @@ class Feature_calculation:
         :return: the objective to be predicted
         '''
 
-        future_return = (self.data['close'].shift(-n + 1).rolling(n).apply(lambda x: (x[-1] - x[0]) / x[0])).to_frame()
-        future_return.columns = ['future_holding_return_' + str(n) + "_days"]
-        future_return.shift(-2).dropna(inplace = True)  # return calculated from T+2, because enter the market at T+1
-        future_return['objective'] = 0
-        future_return['objective'].loc[future_return['future_holding_return_' + str(n) + "_days"] > 0] = 1
-        obj = future_return.loc[:, ['objective']]
+        #return calculated from T+2, because enter the market at T+1
+        future_mean_return = (self.data['return'].shift(-n+1).rolling(n).mean()).to_frame().shift(-2).dropna()
+        future_mean_return.columns = ['future_holding_mean_return_' + str(n) + "_days"]
+        future_mean_return['objective'] = 0
+        future_mean_return['objective'].loc[future_mean_return['future_holding_mean_return_' + str(n) + "_days"] > 0] = 1
+        obj = future_mean_return.loc[:, ['objective']]
+
         return obj
