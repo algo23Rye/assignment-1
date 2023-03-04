@@ -1,5 +1,3 @@
-from Logistic_prediction import Prediction
-from Get_features import Feature_calculation
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -13,7 +11,7 @@ class Backtest:
         :param sign: the dataframe of 0-1 signal
         :param return_data: the return data of the index/stock
         '''
-        
+
         self.sign = sign
         self.return_data = return_data
 
@@ -137,4 +135,5 @@ class Backtest:
         evaluation['method'] = 'Threshold = ' + str(threshold) + ', Method = ' + method
         evaluation.loc['true', 'method'] = 'Benchmark'
         evaluation = evaluation.reset_index(drop = False).set_index(['method'])
+
         return evaluation
