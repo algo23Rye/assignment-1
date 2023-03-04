@@ -10,13 +10,15 @@ class Feature_calculation:
 
     def __init__(self, data):
         '''
-        :param data: a dataframe contain close price
+
+        :param data: a dataframe contains close price
         '''
-        
+
         self.data = data
 
     def return_calculation(self):
         '''
+
         :return: a dataframe with return columns
         '''
 
@@ -69,9 +71,9 @@ class Feature_calculation:
         :param n2: denominator: n2 days mean volume
         '''
 
-        n1_sum_v = self.data['volume'].rolling(n2).mean()
-        n2_sum_v = self.data['volume'].rolling(n1).mean()
-        ratio = (n1_sum_v / n2_sum_v).to_frame()
+        n1_sum_v = self.data['volume'].rolling(n1).mean()
+        n2_sum_v = self.data['volume'].rolling(n2).mean()
+        ratio = (n2_sum_v / n1_sum_v).to_frame()
         ratio.dropna(inplace = True)
         ratio.columns = [str(n2) + "_" + str(n1) + "_volume ratio"]
         return ratio
@@ -79,7 +81,7 @@ class Feature_calculation:
     def get_all_features(self):
         '''
 
-        merge all the features.
+        merge all the features
         '''
 
         self.return_calculation()
@@ -93,6 +95,7 @@ class Feature_calculation:
 
     def features_plot(self, all_features, pic_name):
         '''
+
         draw histograms  of the features
 
         :param all_features: a dataframe of features without being standardized
@@ -124,6 +127,7 @@ class Feature_calculation:
 
     def get_obj(self, n = 10):
         '''
+
         in the paper the objective is the sign of return of the holding period (future n days)
 
         :param n: the holding period (n days) of return
@@ -132,7 +136,7 @@ class Feature_calculation:
 
         future_return = (self.data['close'].shift(-n + 1).rolling(n).apply(lambda x: (x[-1] - x[0]) / x[0])).to_frame()
         future_return.columns = ['future_holding_return_' + str(n) + "_days"]
-        future_return.shift(-1).dropna(inplace = True)
+        future_return.shift(-2).dropna(inplace = True)  # return calculated from T+2, because enter the market at T+1
         future_return['objective'] = 0
         future_return['objective'].loc[future_return['future_holding_return_' + str(n) + "_days"] > 0] = 1
         obj = future_return.loc[:, ['objective']]
