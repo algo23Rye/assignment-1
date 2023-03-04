@@ -5,6 +5,7 @@ from sklearn.linear_model import LogisticRegression
 class Prediction:
     def logistic_reg_split(self, all_data, threshold):
         '''
+
         simply split the data to train data and test data
 
         :param all_data: concating data of features and objective
@@ -19,13 +20,14 @@ class Prediction:
         index = int(len(all_data) * 0.6) + 1
         trainX, trainy = X.iloc[:index, :], y.iloc[:index]
         testX, testy = X.iloc[index:, :], y.iloc[index:]
+
         clf = logi_reg.fit(trainX, trainy)
         prob_for_1 = pd.DataFrame(index = testy.index, columns = ['prob'])
         prob_for_1['prob'] = clf.predict_proba(testX)[:, -1].T
         sign = prob_for_1.copy()
         sign['prob'] = 0
         sign.loc[prob_for_1['prob'] >= threshold] = 1
-        
+
         # trade next day and get return from T+2
         sign = sign.shift(2).dropna()
         sign.columns = ['signal']
@@ -33,6 +35,7 @@ class Prediction:
 
     def logistic_reg_rolling(self, all_data, rolling_period, threshold):
         '''
+
         use rolling window method
 
         :param all_data: concating data of features and objective
@@ -60,6 +63,7 @@ class Prediction:
 
     def logistic_reg_expanding(self, all_data, starting_period, threshold):
         '''
+
         use expanding window method
 
         :param all_data: concating data of features and objective
