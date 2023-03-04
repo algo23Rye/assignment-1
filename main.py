@@ -82,7 +82,6 @@ def Get_outcome(index_code, index_name, path = "./"):
 if __name__ == '__main__':
     index_code = '000300'
     index_name = 'CSI300'
-    # First, select two stock index data and store in the path
     path = "./"
     Get_outcome(index_code, index_name, path)
 
