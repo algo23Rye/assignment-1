@@ -8,8 +8,8 @@ class Prediction:
         simply split the data to train data and test data
 
         :param all_data: concating data of features and objective
-        :param threshold:gi
-        :return:
+        :param threshold: if probability > threshold, then signal = 1
+        :return: the signal
         '''
 
         logi_reg = LogisticRegression(penalty = 'l2', tol = 0.0001, solver = 'liblinear', C = 1.0, max_iter = 100)
@@ -25,8 +25,9 @@ class Prediction:
         sign = prob_for_1.copy()
         sign['prob'] = 0
         sign.loc[prob_for_1['prob'] >= threshold] = 1
-        # trade next day
-        sign = sign.shift(-1).dropna()
+        
+        # trade next day and get return from T+2
+        sign = sign.shift(2).dropna()
         sign.columns = ['signal']
         return sign
 
@@ -35,8 +36,8 @@ class Prediction:
         use rolling window method
 
         :param all_data: concating data of features and objective
-        :param rolling_period:length
-        :param threshold:if probability > threshold, then signal = 1
+        :param rolling_period: length
+        :param threshold: if probability > threshold, then signal = 1
 
         '''
 
@@ -52,8 +53,9 @@ class Prediction:
         sign['prob'] = 0
         sign.loc[prob_for_1['prob'] >= threshold] = 1
         sign.columns = ['signal']
-        # trade next day
-        sign = sign.shift(-1).dropna()
+
+        # trade next day and get return from T+2
+        sign = sign.shift(2).dropna()
         return sign
 
     def logistic_reg_expanding(self, all_data, starting_period, threshold):
@@ -61,7 +63,7 @@ class Prediction:
         use expanding window method
 
         :param all_data: concating data of features and objective
-        :param starting_period: statring length of window
+        :param starting_period: starting length of the window
         :param threshold: if probability > threshold, then signal = 1
 
         '''
@@ -78,7 +80,7 @@ class Prediction:
         sign['prob'] = 0
         sign.loc[prob_for_1['prob'] >= threshold] = 1
         sign.columns = ['signal']
-        # trade next day
-        sign = sign.shift(-1).dropna()
 
+        # trade next day and get return from T+2
+        sign = sign.shift(2).dropna()
         return sign
