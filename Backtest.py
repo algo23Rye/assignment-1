@@ -47,7 +47,7 @@ class Backtest:
     def get_sharpe_compare(self, risk_free_rate = 0.015, trading_days_per_year = 243):
         '''
 
-        calculate sharpe ratio
+        calculate annualized sharpe ratio
         '''
 
         r = risk_free_rate
