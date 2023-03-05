@@ -6,9 +6,8 @@ import pandas as pd
 
 
 def Get_outcome(index_code, index_name, path = "./"):
-
-    #First, download the data
-    get_data = Get_data(path)
+    # First, download the data
+    get_data = Get_data(path, end_date = '20230303')
     df = get_data.get_index_data(index_code)
 
     # store the data
@@ -51,6 +50,7 @@ def Get_outcome(index_code, index_name, path = "./"):
                                              '3:2 split data')
         evaluation_all = pd.concat([evaluation_all, eval])
 
+    # rolling window method
     # To compare them in the same period
     start_date = sign1.index.values[0]
     for rolling_period in rolling_period_list:
@@ -63,6 +63,7 @@ def Get_outcome(index_code, index_name, path = "./"):
                 threshold), threshold, 'Rolling window of ' + str(rolling_period) + ' days')
             evaluation_all = pd.concat([evaluation_all, eval])
 
+    #expanding window method
     # start the same date as the split method
     starting_period = int(len(all_data) * 0.6) + 1
     for threshold in threshold_list:
@@ -83,5 +84,4 @@ if __name__ == '__main__':
     index_code = '000300'
     index_name = 'CSI300'
     path = "./"
-    Get_outcome(index_code, index_name, path)
-
+    evaluation = Get_outcome(index_code, index_name, path)
