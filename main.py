@@ -1,7 +1,7 @@
-from Get_data import Get_data
-from Get_features import Feature_calculation
-from Logistic_prediction import Prediction
-from Backtest import Backtest
+from get_data import Get_data
+from get_features import Feature_calculation
+from logistic_prediction import Prediction
+from backtest import Backtest
 import pandas as pd
 
 
@@ -13,10 +13,12 @@ def Get_outcome(index_code, index_name, path = "./"):
     # store the data
     df.to_csv(path + index_code + ".csv", encoding = 'gbk')
 
-    # Second, get the features
+
     data = pd.read_csv(path + index_code + ".csv", usecols = ['date', 'code', 'close', 'volume'],
                        index_col = ['date'],
                        encoding = 'gbk', parse_dates = True)
+
+    # Second, get the features
     fc = Feature_calculation(data)
     all_features = fc.get_all_features()
 
